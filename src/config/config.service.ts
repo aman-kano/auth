@@ -64,13 +64,17 @@ export class AppConfigService {
   get oauthConfig() {
     return {
       google: {
-        clientId: this.configService.get<string>('app.oauth.google.clientId'),
-        clientSecret: this.configService.get<string>('app.oauth.google.clientSecret'),
+        clientId: this.configService.get<string>('OAUTH_GOOGLE_CLIENT_ID'),
+        clientSecret: this.configService.get<string>('OAUTH_GOOGLE_CLIENT_SECRET'),
       },
       github: {
-        clientId: this.configService.get<string>('app.oauth.github.clientId'),
-        clientSecret: this.configService.get<string>('app.oauth.github.clientSecret'),
+        clientId: this.configService.get<string>('OAUTH_GITHUB_CLIENT_ID'),
+        clientSecret: this.configService.get<string>('OAUTH_GITHUB_CLIENT_SECRET'),
       },
     };
+  }
+
+  get baseUrl(): string {
+    return this.configService.get<string>('BASE_URL', 'http://localhost:3000');
   }
 }
