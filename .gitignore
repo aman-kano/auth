@@ -52,6 +52,10 @@ postman/*.postman_environment.json
 # Docker
 .docker/
 
+# Documentation
+authentication-service.md
+oauth-setup.md
+
 # Misc
 .DS_Store
 .env.local
