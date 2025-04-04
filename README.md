@@ -1,153 +1,161 @@
-# Auth Service
+# Drone Management System - Authentication Service
+
+## Overview
+This service handles all authentication and authorization for the Drone Management System. It provides secure user authentication, role-based access control (RBAC), and OAuth integration with popular providers.
+
 ## Features
+- 🔐 User Authentication
+  - Email/Password login
+  - Multi-Factor Authentication (MFA)
+  - OAuth 2.0 Integration (Google, GitHub)
+  - JWT-based token management
+  - Password recovery and reset
 
-- User authentication with JWT
-- Role-based access control
-- OAuth2 integration (Google, GitHub)
-- Two-factor authentication
-- Rate limiting
-- OpenTelemetry integration for observability
-- Swagger API documentation
+- 👥 User Management
+  - User registration and profile management
+  - Role-based access control
+  - User permissions management
+  - Account verification
 
-## Prerequisites
+- 🔑 Security Features
+  - Password hashing with bcrypt
+  - Rate limiting
+  - Session management
+  - Secure token handling
 
-- Node.js (v18 or later)
+## Getting Started
+
+### Prerequisites
+- Node.js (v18 or higher)
 - PostgreSQL
-- Redis (optional, for rate limiting)
-- OpenTelemetry Collector (for production)
+- Redis (for session management)
+- Docker (optional)
 
-## Environment Setup
+### Installation
 
-The application supports three environments:
-
-### Development
+1. Clone the repository:
 ```bash
-# Copy the development environment file
-cp .env.development .env
-
-# Install dependencies
-npm install
-
-# Start the development server
-npm run start:dev
+git clone https://github.com/aman-kano/auth.git
+cd auth
 ```
 
-### Production
+2. Install dependencies:
 ```bash
-# Copy the production environment file
-cp .env.production .env
+npm install
+```
 
-# Set required environment variables
-export DB_PASSWORD=your-db-password
-export DB_HOST=your-db-host
-export JWT_SECRET=your-jwt-secret
-export OTEL_COLLECTOR_URL=your-otel-collector-url
-# ... set other required variables
+3. Set up environment variables:
+```bash
+cp .env.example .env
+# Edit .env with your configuration
+```
 
-# Build the application
+4. Run database migrations:
+```bash
+npx prisma migrate dev
+```
+
+5. Start the service:
+```bash
+# Development
+npm run start:dev
+
+# Production
 npm run build
-
-# Start the production server
 npm run start:prod
 ```
 
-### Testing
-```bash
-# Copy the test environment file
-cp .env.test .env
-
-# Run tests
-npm run test
-```
-
-## OpenTelemetry Integration
-
-The service is instrumented with OpenTelemetry for observability. It captures:
-
-- HTTP request/response traces
-- Fastify route information
-- NestJS operation traces
-- Database queries
-- External service calls
-
-### Configuration
-
-OpenTelemetry is configured through environment variables:
-
-```env
-# OpenTelemetry Configuration
-OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318/v1/traces
-OTEL_SERVICE_NAME=auth-service
-OTEL_SERVICE_VERSION=1.0.0
-```
-
-### Development Setup
-
-For local development, you can use the OpenTelemetry Collector with Jaeger:
-
-1. Start Jaeger using Docker:
-```bash
-docker run -d --name jaeger \
-  -e COLLECTOR_ZIPKIN_HOST_PORT=:9411 \
-  -p 5775:5775/udp \
-  -p 6831:6831/udp \
-  -p 6832:6832/udp \
-  -p 5778:5778 \
-  -p 16686:16686 \
-  -p 14250:14250 \
-  -p 14268:14268 \
-  -p 14269:14269 \
-  -p 9411:9411 \
-  jaegertracing/all-in-one:latest
-```
-
-2. Access the Jaeger UI at http://localhost:16686
-
-### Production Setup
-
-For production, configure your OpenTelemetry Collector to export traces to your preferred observability platform (e.g., Jaeger, Zipkin, or cloud providers).
-
 ## API Documentation
 
-Once the application is running, you can access the Swagger documentation at:
-- Development: http://localhost:3000/api
-- Production: https://your-domain.com/api
+All API endpoints are versioned with the prefix `/api/v1/`. Here are the available endpoints:
+
+### Authentication Endpoints
+- `POST /api/v1/auth/register` - Register a new user
+- `POST /api/v1/auth/login` - User login
+- `POST /api/v1/auth/refresh` - Refresh access token
+- `POST /api/v1/auth/logout` - User logout
+- `POST /api/v1/auth/forgot-password` - Request password reset
+- `POST /api/v1/auth/reset-password` - Reset password
+
+### OAuth Endpoints
+- `GET /api/v1/auth/oauth/google` - Google OAuth login
+- `GET /api/v1/auth/oauth/github` - GitHub OAuth login
+- `GET /api/v1/auth/oauth/callback` - OAuth callback handler
+
+### User Management Endpoints
+- `GET /api/v1/users/me` - Get current user profile
+- `PUT /api/v1/users/me` - Update user profile
+- `GET /api/v1/users` - List users (admin only)
+- `GET /api/v1/users/:id` - Get user by ID (admin only)
+- `PUT /api/v1/users/:id` - Update user (admin only)
+- `DELETE /api/v1/users/:id` - Delete user (admin only)
+
+### API Versioning Policy
+- Current version: v1
+- Version format: `/api/v{version}/`
+- Breaking changes will be released in new versions
+- Previous versions will be maintained for at least 6 months after a new version is released
 
 ## Environment Variables
 
-### Common Variables
-- `PORT`: Server port (default: 3000)
-- `NODE_ENV`: Environment (development/production/test)
-- `DATABASE_URL`: PostgreSQL connection string
-- `JWT_SECRET`: Secret for JWT signing
-- `CORS_ORIGIN`: Allowed CORS origins
+### Required Variables
+```env
+# Database
+DATABASE_URL="postgresql://user:password@localhost:5432/drone_auth"
 
-### OpenTelemetry Variables
-- `OTEL_EXPORTER_OTLP_ENDPOINT`: OpenTelemetry collector endpoint
-- `OTEL_SERVICE_NAME`: Service name for traces
-- `OTEL_SERVICE_VERSION`: Service version
+# JWT
+JWT_SECRET="your-secret-key"
+JWT_EXPIRES_IN="1h"
+JWT_REFRESH_EXPIRES_IN="7d"
 
-### Email Variables
-- `SMTP_HOST`: SMTP server host
-- `SMTP_PORT`: SMTP server port
-- `SMTP_USER`: SMTP username
-- `SMTP_PASS`: SMTP password
-- `SMTP_FROM`: Sender email address
+# Redis
+REDIS_HOST="localhost"
+REDIS_PORT=6379
 
-### OAuth Variables
-- `GOOGLE_CLIENT_ID`: Google OAuth client ID
-- `GOOGLE_CLIENT_SECRET`: Google OAuth client secret
-- `GITHUB_CLIENT_ID`: GitHub OAuth client ID
-- `GITHUB_CLIENT_SECRET`: GitHub OAuth client secret
+# Email
+SMTP_HOST="smtp.example.com"
+SMTP_PORT=587
+SMTP_USER="your-email"
+SMTP_PASS="your-password"
+
+# OAuth
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
+GITHUB_CLIENT_ID="your-github-client-id"
+GITHUB_CLIENT_SECRET="your-github-client-secret"
+```
+
+## Development
+
+### Running Tests
+```bash
+# Unit tests
+npm run test
+
+# e2e tests
+npm run test:e2e
+
+# Test coverage
+npm run test:cov
+```
+
+### Code Style
+```bash
+# Format code
+npm run format
+
+# Lint code
+npm run lint
+```
 
 ## Contributing
-
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a new Pull Request
+1. Create a feature branch (`git checkout -b feature/amazing-feature`)
+2. Commit your changes (`git commit -m 'Add amazing feature'`)
+3. Push to the branch (`git push origin feature/amazing-feature`)
+4. Open a Pull Request
 
 ## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-This project is licensed under the MIT License. 
+## Support
+For support, please contact the development team or create an issue in the repository. 
