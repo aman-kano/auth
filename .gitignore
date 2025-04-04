@@ -58,3 +58,7 @@ postman/*.postman_environment.json
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Documentation
+authentication-service.md
+docs/

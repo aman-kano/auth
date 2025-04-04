@@ -10,7 +10,7 @@ describe('AuthController (e2e)', () => {
   });
 
   afterAll(async () => {
-    await teardownTestApp();
+    await teardownTestApp(app);
   });
 
   beforeEach(async () => {

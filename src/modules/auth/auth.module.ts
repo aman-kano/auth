@@ -1,7 +1,8 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
+import { ConfigModule } from '../../config/config.module';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
@@ -9,7 +10,7 @@ import { EmailModule } from '../email/email.module';
 import { OAuthModule } from './oauth/oauth.module';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
-import { GithubStrategy } from './strategies/github.strategy';
+import { GitHubStrategy } from './strategies/github.strategy';
 import { DatabaseModule } from '../../database/database.module';
 import { EmailService } from './services/email.service';
 import { PrismaModule } from '../../database/prisma.module';
@@ -24,6 +25,7 @@ import { PermissionsController } from './permissions.controller';
     EmailModule,
     forwardRef(() => OAuthModule),
     DatabaseModule,
+    ConfigModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -42,7 +44,7 @@ import { PermissionsController } from './permissions.controller';
     AuthService,
     JwtStrategy,
     GoogleStrategy,
-    GithubStrategy,
+    GitHubStrategy,
     EmailService,
     RolesService,
     PermissionsService,
